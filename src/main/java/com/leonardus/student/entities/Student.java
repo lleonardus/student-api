@@ -16,12 +16,12 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private String matricula;
+
     private String nome;
 
     private String sobrenome;
-
-    @Column(unique = true)
-    private String matricula;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "usuario_telefone",
