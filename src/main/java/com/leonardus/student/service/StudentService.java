@@ -44,7 +44,7 @@ public class StudentService {
 
         student.setMatricula(studentDTO.getMatricula());
         student.setNome(studentDTO.getNome());
-        student.setSobrenome(student.getSobrenome());
+        student.setSobrenome(studentDTO.getSobrenome());
 
         return repository.save(student);
     }
