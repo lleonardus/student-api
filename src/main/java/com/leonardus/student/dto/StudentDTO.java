@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
@@ -26,5 +27,6 @@ public class StudentDTO {
     @Length(min = 4, message = "O sobrenome deve ter no mínimo {min} caracteres")
     private String sobrenome;
 
+    @Valid
     private Set<Phone> telefones;
 }
