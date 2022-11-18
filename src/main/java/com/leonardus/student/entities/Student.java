@@ -23,10 +23,7 @@ public class Student {
 
     private String sobrenome;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "usuario_telefone",
-    joinColumns = @JoinColumn(name = "usuario_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "telefone_id", referencedColumnName = "id")
-    )
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn
     private Set<Phone> telefones;
 }
