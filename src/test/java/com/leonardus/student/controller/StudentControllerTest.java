@@ -6,6 +6,7 @@ import com.leonardus.student.entities.Phone;
 import com.leonardus.student.entities.Student;
 import com.leonardus.student.factory.StudentFactory;
 import com.leonardus.student.service.StudentService;
+import com.leonardus.student.service.exceptions.DataIntegrityViolationException;
 import com.leonardus.student.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,11 +46,14 @@ class StudentControllerTest {
     Student student;
     StudentDTO studentDTO;
 
+    String json;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception{
         student = StudentFactory.createStudent();
         studentDTO = StudentFactory.createStudentDTO();
+
+        json = objectMapper.writeValueAsString(studentDTO);
 
         when(service.findAllStudents()).thenReturn(List.of(student));
         when(service.findStudentByMatricula(EXISTING_MATRICULA)).thenReturn(student);
@@ -66,9 +70,11 @@ class StudentControllerTest {
 
     @Test
     void findAllStudents_ReturnsAListOfStudentDTO() throws Exception{
+        String json = objectMapper.writeValueAsString(List.of(studentDTO));
+
         mockMvc.perform(MockMvcRequestBuilders.get("/estudantes").contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(List.of(studentDTO))))
+                .andExpect(MockMvcResultMatchers.content().json(json))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -77,7 +83,7 @@ class StudentControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/estudantes/{matricula}", EXISTING_MATRICULA)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(studentDTO)))
+                .andExpect(MockMvcResultMatchers.content().json(json))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -93,19 +99,32 @@ class StudentControllerTest {
     void createStudent_ReturnsAStudentDTO_WhenSuccessful() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(studentDTO)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.header().exists("Location"));
+                .andExpect(MockMvcResultMatchers.header().exists("Location"))
+                .andExpect(MockMvcResultMatchers.content().json(json))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
+    @Test
+    void createStudent_ThrowsDataIntegrityViolationException_WhenMatriculaIsNotUnique() throws Exception{
+        when(service.createStudent(any())).thenThrow(DataIntegrityViolationException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
     void createStudent_ThrowsMethodArgumentNotValidException_WhenMatriculaHasInvalidSize() throws Exception{
         studentDTO.setMatricula("123");
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -113,9 +132,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsMethodArgumentNotValidException_WhenMatriculaIsNull() throws Exception{
         studentDTO.setMatricula(null);
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -123,9 +144,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsMethodArgumentNotValidException_WhenNomeHasInvalidSize() throws Exception{
         studentDTO.setNome("123");
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -133,9 +156,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsMethodArgumentNotValidException_WhenNomeIsNull() throws Exception{
         studentDTO.setNome(null);
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -143,9 +168,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsMethodArgumentNotValidException_WhenSobrenomeHasInvalidSize() throws Exception{
         studentDTO.setSobrenome("123");
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -153,9 +180,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsMethodArgumentNotValidException_WhenSobrenomeIsNull() throws Exception{
         studentDTO.setSobrenome(null);
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -163,10 +192,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsConstraintViolationException_WhenNumeroHasInvalidSize() throws Exception{
         studentDTO.setTelefones(Set.of(new Phone(1L, "")));
+        json = objectMapper.writeValueAsString(studentDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -174,10 +204,11 @@ class StudentControllerTest {
     @Test
     void createStudent_ThrowsConstraintViolationException_WhenNumeroIsNull() throws Exception{
         studentDTO.setTelefones(Set.of(new Phone(1L, null)));
+        json = objectMapper.writeValueAsString(studentDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -186,28 +217,42 @@ class StudentControllerTest {
     void updateStudent_ReturnsAStudentDTO_WhenSuccessful() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(studentDTO)))
+                .andExpect(MockMvcResultMatchers.content().json(json))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
+    void updateStudent_ThrowsDataIntegrityViolationException_WhenMatriculaIsNotUnique() throws Exception{
+        when(service.updateStudent(any(), any())).thenThrow(DataIntegrityViolationException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", NON_EXISTING_MATRICULA)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    @Test
     void updateStudent_ThrowsMethodArgumentNotValidException_WhenMatriculaHasInvalidSize() throws Exception{
         studentDTO.setMatricula("123");
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
-    void updateStudent_ThrowsMethodArgumentNotValidException_WhenMatriuclaIsNull() throws Exception{
+    void updateStudent_ThrowsMethodArgumentNotValidException_WhenMatriculaIsNull() throws Exception{
         studentDTO.setMatricula(null);
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -215,9 +260,11 @@ class StudentControllerTest {
     @Test
     void updateStudent_ThrowsMethodArgumentNotValidException_WhenNomeHasInvalidSize() throws Exception{
         studentDTO.setNome("123");
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -225,9 +272,11 @@ class StudentControllerTest {
     @Test
     void updateStudent_ThrowsMethodArgumentNotValidException_WhenNomeIsNull() throws Exception{
         studentDTO.setNome(null);
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -235,9 +284,11 @@ class StudentControllerTest {
     @Test
     void updateStudent_ThrowsMethodArgumentNotValidException_WhenSobrenomeHasInvalidSize() throws Exception{
         studentDTO.setSobrenome("123");
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -245,9 +296,11 @@ class StudentControllerTest {
     @Test
     void updateStudent_ThrowsMethodArgumentNotValidException_WhenSobrenomeIsNull() throws Exception{
         studentDTO.setSobrenome(null);
+        json = objectMapper.writeValueAsString(studentDTO);
+
         mockMvc.perform(MockMvcRequestBuilders.put("/estudantes/{matricula}", EXISTING_MATRICULA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(studentDTO)))
+                        .content(json))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }

@@ -38,15 +38,20 @@ class StudentServiceTest {
 
     Student student;
     StudentDTO studentDTO;
+    Student anotherStudent;
 
     @BeforeEach
     void setUp() {
         student = StudentFactory.createStudent();
         studentDTO = StudentFactory.createStudentDTO();
+        anotherStudent = StudentFactory.createStudent();
+        anotherStudent.setMatricula(MATRICULA_REGISTERED_BY_ANOTHER_STUDENT);
+        anotherStudent.setId(studentDTO.getId() + 1);
 
         when(repository.findAll()).thenReturn(List.of(student));
         when(repository.findByMatricula(EXISTING_MATRICULA)).thenReturn(Optional.of(student));
         when(repository.findByMatricula(NON_EXISTING_MATRICULA)).thenReturn(Optional.empty());
+        when(repository.findByMatricula(MATRICULA_REGISTERED_BY_ANOTHER_STUDENT)).thenReturn(Optional.of(anotherStudent));
         when(repository.save(student)).thenReturn(student);
 
         when(mapper.map(any(), any())).thenReturn(student);
@@ -111,12 +116,7 @@ class StudentServiceTest {
 
     @Test
     void updateStudent_ThrowsDataIntegrityViolationException_WhenMatriculaIsNotUnique() {
-        Student anotherStudent = StudentFactory.createStudent();
-        anotherStudent.setMatricula(MATRICULA_REGISTERED_BY_ANOTHER_STUDENT);
-        anotherStudent.setId(studentDTO.getId() + 1);
         studentDTO.setMatricula(MATRICULA_REGISTERED_BY_ANOTHER_STUDENT);
-
-        when(repository.findByMatricula(anotherStudent.getMatricula())).thenReturn(Optional.of(anotherStudent));
 
         assertThrows(DataIntegrityViolationException.class, () -> service.updateStudent(EXISTING_MATRICULA, studentDTO));
     }
@@ -130,5 +130,6 @@ class StudentServiceTest {
     @Test
     void deleteStudentByMatricula_ThrowsObjectNotFoundException_WhenMatriculaDoesNotExist() {
         assertThrows(ObjectNotFoundException.class, () -> service.deleteStudentByMatricula(NON_EXISTING_MATRICULA));
+        verify(repository, times(0)).delete(student);
     }
 }
