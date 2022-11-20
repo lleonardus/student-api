@@ -1,6 +1,5 @@
-package com.leonardus.student.dto;
+package com.leonardus.student.dtos;
 
-import com.leonardus.student.entities.Phone;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,5 +27,5 @@ public class StudentDTO {
     private String sobrenome;
 
     @Valid
-    private Set<Phone> telefones;
+    private Set<PhoneDTO> telefones;
 }

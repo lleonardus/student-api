@@ -1,6 +1,6 @@
 package com.leonardus.student.service;
 
-import com.leonardus.student.dto.StudentDTO;
+import com.leonardus.student.dtos.StudentDTO;
 import com.leonardus.student.entities.Student;
 import com.leonardus.student.factory.StudentFactory;
 import com.leonardus.student.repository.StudentRepository;

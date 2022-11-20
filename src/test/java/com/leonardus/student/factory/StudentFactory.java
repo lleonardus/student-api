@@ -1,6 +1,6 @@
 package com.leonardus.student.factory;
 
-import com.leonardus.student.dto.StudentDTO;
+import com.leonardus.student.dtos.StudentDTO;
 import com.leonardus.student.entities.Phone;
 import com.leonardus.student.entities.Student;
 import org.modelmapper.ModelMapper;

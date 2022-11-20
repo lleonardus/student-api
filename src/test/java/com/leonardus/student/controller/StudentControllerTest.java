@@ -1,8 +1,8 @@
 package com.leonardus.student.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leonardus.student.dto.StudentDTO;
-import com.leonardus.student.entities.Phone;
+import com.leonardus.student.dtos.PhoneDTO;
+import com.leonardus.student.dtos.StudentDTO;
 import com.leonardus.student.entities.Student;
 import com.leonardus.student.factory.StudentFactory;
 import com.leonardus.student.service.StudentService;
@@ -191,7 +191,7 @@ class StudentControllerTest {
 
     @Test
     void createStudent_ThrowsConstraintViolationException_WhenNumeroHasInvalidSize() throws Exception{
-        studentDTO.setTelefones(Set.of(new Phone(1L, "")));
+        studentDTO.setTelefones(Set.of(new PhoneDTO(1L, "")));
         json = objectMapper.writeValueAsString(studentDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
@@ -203,7 +203,7 @@ class StudentControllerTest {
 
     @Test
     void createStudent_ThrowsConstraintViolationException_WhenNumeroIsNull() throws Exception{
-        studentDTO.setTelefones(Set.of(new Phone(1L, null)));
+        studentDTO.setTelefones(Set.of(new PhoneDTO(1L, null)));
         json = objectMapper.writeValueAsString(studentDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/estudantes")
