@@ -28,9 +28,9 @@ O projeto trata-se de um CRUD, onde é possível criar, consultar, atualizar e e
 
 ``` json
 {
+    "matricula": "123-A",
     "nome": "Luciana",
-    "sobrenome": "Santos",
-    "matricula": "123-A"
+    "sobrenome": "Santos"
 }
 ```
 
@@ -38,9 +38,9 @@ O projeto trata-se de um CRUD, onde é possível criar, consultar, atualizar e e
 
 ``` json
 {
+    "matricula": "123-A",
     "nome": "Luciana",
     "sobrenome": "Santos",
-    "matricula": "123-A",
     "telefones" : [
         {
             "numero" : "4002-8922"
@@ -55,17 +55,9 @@ O projeto trata-se de um CRUD, onde é possível criar, consultar, atualizar e e
 ### Exemplo de JSON para atualizar estudante
 ``` json
 {
-    "nome": "Luciana - updated",
-    "sobrenome": "Santos - updated",
     "matricula": "123-A - updated",
-    "telefones" : [
-        {
-            "numero" : "4002-8922"
-        },
-        {
-            "numero" : "8922-4002"
-        }
-    ]
+    "nome": "Luciana - updated",
+    "sobrenome": "Santos - updated"
 }
 ```
 
